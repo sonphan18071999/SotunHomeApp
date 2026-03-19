@@ -1,19 +1,20 @@
 import type { Room, RoomType, Booking, Expense, DailyRate } from '@/types/entities';
+import { ROOM_PLACEHOLDER_IMAGE } from '@/constants';
 
 const H1 = 'h1';
 const H2 = 'h2';
 
 export const MOCK_ROOM_TYPES: RoomType[] = [
-  { id: 'rt1', homestayId: H1, name: 'Deluxe', capacity: 2, defaultBasePrice: 1500 },
-  { id: 'rt2', homestayId: H1, name: 'Standard', capacity: 2, defaultBasePrice: 1000 },
-  { id: 'rt3', homestayId: H2, name: 'Dorm', capacity: 4, defaultBasePrice: 400 },
+  { id: 'rt1', homestayId: H1, name: 'Phòng nhỏ ( ban công )', capacity: 2, defaultBasePrice: 1500 },
+  { id: 'rt2', homestayId: H1, name: 'Phòng Giữa ( có máy chiếu )', capacity: 2, defaultBasePrice: 1000 },
+  { id: 'rt3', homestayId: H2, name: 'Phòng Lớn (Phòng gần toilet)', capacity: 4, defaultBasePrice: 400 },
 ];
 
 export const MOCK_ROOMS: Room[] = [
-  { id: 'r1', homestayId: H1, roomTypeId: 'rt1', name: '101', status: 'active' },
-  { id: 'r2', homestayId: H1, roomTypeId: 'rt1', name: '102', status: 'active' },
-  { id: 'r3', homestayId: H1, roomTypeId: 'rt2', name: '201', status: 'active' },
-  { id: 'r4', homestayId: H2, roomTypeId: 'rt3', name: 'A', status: 'active' },
+  { id: 'r1', homestayId: H1, roomTypeId: 'rt1', name: '101', status: 'active', mainImageUrl: ROOM_PLACEHOLDER_IMAGE },
+  { id: 'r2', homestayId: H1, roomTypeId: 'rt1', name: '102', status: 'active', mainImageUrl: ROOM_PLACEHOLDER_IMAGE },
+  { id: 'r3', homestayId: H1, roomTypeId: 'rt2', name: '201', status: 'active', mainImageUrl: ROOM_PLACEHOLDER_IMAGE },
+  { id: 'r4', homestayId: H2, roomTypeId: 'rt3', name: 'A', status: 'active', mainImageUrl: ROOM_PLACEHOLDER_IMAGE },
 ];
 
 export const MOCK_BOOKINGS: Booking[] = [

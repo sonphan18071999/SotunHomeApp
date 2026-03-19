@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import AntdRegistry from "./AntdRegistry";
 import { HomestayProvider } from "@/contexts/HomestayContext";
+import { RoomProvider } from "@/contexts/RoomContext";
 import { BookingProvider } from "@/contexts/BookingContext";
 import AppLayout from "@/components/layout/AppLayout";
 import "./globals.css";
@@ -31,9 +32,11 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AntdRegistry>
           <HomestayProvider>
-            <BookingProvider>
-              <AppLayout>{children}</AppLayout>
-            </BookingProvider>
+            <RoomProvider>
+              <BookingProvider>
+                <AppLayout>{children}</AppLayout>
+              </BookingProvider>
+            </RoomProvider>
           </HomestayProvider>
         </AntdRegistry>
       </body>

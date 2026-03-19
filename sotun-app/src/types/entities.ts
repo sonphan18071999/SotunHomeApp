@@ -19,13 +19,15 @@ export interface RoomType {
 /** Room status */
 export type RoomStatus = 'active' | 'inactive';
 
-/** Room: id, homestayId, roomTypeId, name/number, status */
+/** Room: id, homestayId, roomTypeId, name/number, status, optional main image */
 export interface Room {
   id: string;
   homestayId: string;
   roomTypeId: string;
   name: string;
   status: RoomStatus;
+  /** Main image URL for the room */
+  mainImageUrl?: string;
 }
 
 /** Booking channel */

@@ -1,83 +1,94 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { Tabs, Table, Tag } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Row, Col } from 'antd';
 import { PageHeader } from '@/components/common/PageHeader';
 import { useHomestay } from '@/contexts/HomestayContext';
-import { MOCK_ROOMS, MOCK_ROOM_TYPES } from '@/lib/mock-data';
-import { ROOM_STATUSES } from '@/constants';
+import { useRoom } from '@/contexts/RoomContext';
+import { DEFAULT_ROOMS_FILTER_VALUE, RoomCard, RoomsFilter } from '@/components/rooms';
+import { MOCK_ROOM_TYPES, MOCK_BOOKINGS } from '@/lib/mock-data';
+import { ROOM_CARDS_PER_ROW } from '@/constants';
+import type { Room } from '@/types/entities';
+import type { RoomsFilterValue } from '@/components/rooms';
+
+const GRID_SPAN = 24 / ROOM_CARDS_PER_ROW;
 
 export default function RoomsPage() {
+  const router = useRouter();
   const { selectedHomestay } = useHomestay();
+  const { rooms } = useRoom();
+  const [filterValue, setFilterValue] = useState<RoomsFilterValue>(DEFAULT_ROOMS_FILTER_VALUE);
 
   const roomTypes = useMemo(
     () => (selectedHomestay ? MOCK_ROOM_TYPES.filter((rt) => rt.homestayId === selectedHomestay.id) : []),
     [selectedHomestay]
   );
 
-  const rooms = useMemo(
-    () => (selectedHomestay ? MOCK_ROOMS.filter((r) => r.homestayId === selectedHomestay.id) : []),
-    [selectedHomestay]
+  const bookingsByRoomId = useMemo(() => {
+    const map = new Map<string, typeof MOCK_BOOKINGS>();
+    for (const b of MOCK_BOOKINGS) {
+      const list = map.get(b.roomId) ?? [];
+      list.push(b);
+      map.set(b.roomId, list);
+    }
+    return map;
+  }, []);
+
+  const filteredRooms = useMemo(() => {
+    const search = filterValue.search.trim().toLowerCase();
+    const byRoomType = filterValue.roomTypeId === 'all' ? null : filterValue.roomTypeId;
+    const byStatus = filterValue.status === 'all' ? null : filterValue.status;
+
+    const matchesSearch = (room: Room) => {
+      if (!search) return true;
+
+      const roomTypeName = roomTypes.find((rt) => rt.id === room.roomTypeId)?.name ?? '';
+      const bookings = bookingsByRoomId.get(room.id) ?? [];
+      for (const b of bookings) {
+        if (
+          b.guestName.toLowerCase().includes(search) ||
+          (b.phone?.toLowerCase().includes(search) ?? false) ||
+          (b.email?.toLowerCase().includes(search) ?? false)
+        ) {
+          return true;
+        }
+      }
+
+      return room.name.toLowerCase().includes(search) || roomTypeName.toLowerCase().includes(search);
+    };
+
+    return rooms.filter((room) => {
+      if (byRoomType != null && room.roomTypeId !== byRoomType) return false;
+      if (byStatus != null && room.status !== byStatus) return false;
+      return matchesSearch(room);
+    });
+  }, [bookingsByRoomId, filterValue.search, filterValue.roomTypeId, filterValue.status, roomTypes, rooms]);
+
+  const openDetail = useCallback(
+    (room: Room) => {
+      router.push(`/rooms/${room.id}`);
+    },
+    [router]
   );
-
-  const roomTypeColumns: ColumnsType<{ id: string; name: string; capacity: number; defaultBasePrice: number }> = [
-    { title: 'Name', dataIndex: 'name', key: 'name' },
-    { title: 'Capacity', dataIndex: 'capacity', key: 'capacity', width: 100 },
-    {
-      title: 'Default price',
-      dataIndex: 'defaultBasePrice',
-      key: 'defaultBasePrice',
-      render: (v: number) => `${v} ${selectedHomestay?.currency ?? ''}`,
-    },
-  ];
-
-  const roomColumns: ColumnsType<{ id: string; name: string; status: string; roomTypeId: string }> = [
-    { title: 'Room', dataIndex: 'name', key: 'name' },
-    {
-      title: 'Type',
-      dataIndex: 'roomTypeId',
-      key: 'roomTypeId',
-      render: (id: string) => roomTypes.find((rt) => rt.id === id)?.name ?? id,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => {
-        const opt = ROOM_STATUSES.find((s) => s.value === status);
-        return <Tag color={status === 'active' ? 'green' : 'default'}>{opt?.label ?? status}</Tag>;
-      },
-    },
-  ];
 
   return (
     <>
-      <PageHeader title="Rooms & Room Types" subtitle="Manage room types and rooms per homestay" />
-      <Tabs
-        items={[
-          {
-            key: 'types',
-            label: 'Room types',
-            children: (
-              <Table
-                rowKey="id"
-                dataSource={roomTypes}
-                columns={roomTypeColumns}
-                pagination={false}
-                size="small"
-              />
-            ),
-          },
-          {
-            key: 'rooms',
-            label: 'Rooms',
-            children: (
-              <Table rowKey="id" dataSource={rooms} columns={roomColumns} pagination={false} size="small" />
-            ),
-          },
-        ]}
-      />
+      <PageHeader title="Rooms" subtitle="Manage rooms and view booking details" />
+      <RoomsFilter value={filterValue} onChange={setFilterValue} roomTypes={roomTypes} />
+      <Row gutter={[16, 16]}>
+        {filteredRooms.map((room) => (
+          <Col key={room.id} xs={24} sm={24} md={24 / ROOM_CARDS_PER_ROW} lg={GRID_SPAN}>
+            <RoomCard
+              room={room}
+              roomType={roomTypes.find((rt) => rt.id === room.roomTypeId)}
+              bookingCount={bookingsByRoomId.get(room.id)?.length ?? 0}
+              currency={selectedHomestay?.currency ?? ''}
+              onClick={openDetail}
+            />
+          </Col>
+        ))}
+      </Row>
     </>
   );
 }

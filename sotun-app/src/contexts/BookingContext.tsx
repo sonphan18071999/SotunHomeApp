@@ -20,6 +20,7 @@ import {
 
 interface BookingContextValue {
   bookings: Booking[];
+  addBooking: (booking: Booking) => void;
   refreshBookings: () => Promise<void>;
   isLoading: boolean;
   syncError: string | null;
@@ -32,6 +33,10 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setLoading] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const addBooking = useCallback((booking: Booking) => {
+    setBookings((prev) => [...prev, booking]);
+  }, []);
 
   const load = useCallback(async () => {
     const useApi = USE_REAL_BOOKING_API && Boolean(BOOKING_API_BASE_URL);
@@ -73,11 +78,12 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<BookingContextValue>(
     () => ({
       bookings,
+      addBooking,
       refreshBookings: load,
       isLoading,
       syncError,
     }),
-    [bookings, load, isLoading, syncError]
+    [bookings, addBooking, load, isLoading, syncError]
   );
 
   return (
