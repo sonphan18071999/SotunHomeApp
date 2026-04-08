@@ -25,6 +25,10 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+html[lang="vi"] body {
+  font-family: var(--font-montserrat, "Montserrat", sans-serif);
+}
+
 .calendar-cell-booked {
   background: #f0f0f0 !important;
 }

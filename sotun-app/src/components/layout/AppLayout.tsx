@@ -3,7 +3,6 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
 import {
-  DashboardOutlined,
   HomeOutlined,
   CalendarOutlined,
   BookOutlined,
@@ -19,7 +18,6 @@ import { HomestaySwitcher } from './HomestaySwitcher';
 const { Header, Sider, Content } = Layout;
 
 const MENU_ITEMS = [
-  { key: '/', icon: <DashboardOutlined />, label: 'Dashboard', href: '/' },
   { key: '/visit', icon: <PictureOutlined />, label: 'Guest landing', href: '/visit' },
   { key: '/rooms', icon: <HomeOutlined />, label: 'Rooms & Types', href: '/rooms' },
   { key: '/calendar', icon: <CalendarOutlined />, label: 'Calendar', href: '/calendar' },
@@ -37,7 +35,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  const selectedKey = MENU_ITEMS.find((i) => pathname === i.href || pathname.startsWith(i.href + '/'))?.key ?? '/';
+  const selectedKey = MENU_ITEMS.find((i) => pathname === i.href || pathname.startsWith(i.href + '/'))?.key ?? '/visit';
 
   const menuItems = MENU_ITEMS.map((item) => ({
     key: item.key,
