@@ -10,6 +10,7 @@ import {
   DollarOutlined,
   SettingOutlined,
   BarChartOutlined,
+  PictureOutlined,
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -19,6 +20,7 @@ const { Header, Sider, Content } = Layout;
 
 const MENU_ITEMS = [
   { key: '/', icon: <DashboardOutlined />, label: 'Dashboard', href: '/' },
+  { key: '/visit', icon: <PictureOutlined />, label: 'Guest landing', href: '/visit' },
   { key: '/rooms', icon: <HomeOutlined />, label: 'Rooms & Types', href: '/rooms' },
   { key: '/calendar', icon: <CalendarOutlined />, label: 'Calendar', href: '/calendar' },
   { key: '/bookings', icon: <BookOutlined />, label: 'Bookings', href: '/bookings' },
@@ -27,8 +29,14 @@ const MENU_ITEMS = [
   { key: '/settings', icon: <SettingOutlined />, label: 'Settings', href: '/settings' },
 ];
 
+const VISIT_ROUTE_PREFIX = '/visit';
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  if (pathname === VISIT_ROUTE_PREFIX || pathname.startsWith(`${VISIT_ROUTE_PREFIX}/`)) {
+    return <>{children}</>;
+  }
+
   const selectedKey = MENU_ITEMS.find((i) => pathname === i.href || pathname.startsWith(i.href + '/'))?.key ?? '/';
 
   const menuItems = MENU_ITEMS.map((item) => ({
